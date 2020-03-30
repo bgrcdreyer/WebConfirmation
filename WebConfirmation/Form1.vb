@@ -60,7 +60,7 @@ Public Class Form1
         blnDebugFlag = False
 
         ' SQL Statement to pull the header information of the order confirmation
-        SectionError = "SQL Statement to pull the header information of the order confirmation"
+        SectionError = "ORDCON - SQL Statement to pull the header information of the order confirmation"
 
         SQLStatement = <Sql><![CDATA[
            SELECT     s.SOHNUM_0, s.BPCORD_0, s.CUSORDREF_0, s.ORDDAT_0, s.BPINAM_0, 
@@ -94,13 +94,13 @@ Public Class Form1
         If Order.Rows.Count > 0 Then
 
             ' Opens the html template file and sets the entire file as a string "Body"
-            SectionError = "Opens the html template file and sets the entire file as a string Body"
+            SectionError = "ORDCON - Opens the html template file and sets the entire file as a string Body"
             FileReader = New StreamReader("\\bgr.local\Users\DocumentRedirection\Cdreyer\Documents\Projects\WebConfirmation\OATemplateNew.html")
             Body = FileReader.ReadToEnd
             FileReader.Close()
 
             ' Replaces the Header information in the template with data from the SQL statement
-            SectionError = "Replaces the Header information in the template with data from the SQL statement"
+            SectionError = "ORDCON - Replaces the Header information in the template with data from the SQL statement"
             Body = Replace(Body, "***OrderNumber***", OrderNumber)
             Body = Replace(Body, "***PONumber***", Order.Rows(0).Item("CUSORDREF_0"))
             strbuffer = Order.Rows(0).Item("PAYTERM").ToString
@@ -134,7 +134,7 @@ Public Class Form1
             Body = Replace(Body, "***Header***", Me.RichTextBox1.Text)
 
             ' BillTo
-            SectionError = "BillTo"
+            SectionError = "ORDCON - BillTo"
             Dim BillTo As String = ""
             If Len(Order.Rows(0).Item("BPINAM_0")) > 2 Then BillTo += Order.Rows(0).Item("BPINAM_0")
             If Len(Order.Rows(0).Item("BPCORD_0")) > 2 Then BillTo += " (Cust #: " + Order.Rows(0).Item("BPCORD_0") + ")" + "<BR>"
@@ -145,7 +145,7 @@ Public Class Form1
             Body = Replace(Body, "***BillTo***", BillTo)
 
             ' ShipTo
-            SectionError = "ShipTo"
+            SectionError = "ORDCON - ShipTo"
             Dim ShipTo As String = ""
             If Len(Order.Rows(0).Item("BPDNAM_0")) > 2 Then ShipTo += Order.Rows(0).Item("BPDNAM_0") + "<BR>"
             If Len(Order.Rows(0).Item("BPDADDLIG_0")) > 2 Then ShipTo += Order.Rows(0).Item("BPDADDLIG_0") + "<BR>"
@@ -155,7 +155,7 @@ Public Class Form1
             Body = Replace(Body, "***ShipTo***", ShipTo)
 
             ' SQL Statement to pull the product line information
-            SectionError = "SQL Statement to pull the product line information"
+            SectionError = "ORDCON - SQL Statement to pull the product line information"
             SQLStatement = <Sql><![CDATA[
                 SELECT        PILOT.SORDER.SOHNUM_0,PILOT.SORDERP.ITMREF_0 as ITMREFNUM, CASE WHEN LEN(PILOT.SORDERP.ITMREFBPC_0) 
                                          < 2 THEN PILOT.SORDERP.ITMREF_0 ELSE PILOT.SORDERP.ITMREFBPC_0 + '(' + PILOT.SORDERP.ITMREF_0 + ')' END AS ITMREF_0, PILOT.SORDERP.NETPRI_0, 
@@ -176,7 +176,7 @@ Public Class Form1
             Dim OrderDetails As DataTable = OpenDataSet(SQLStatement)
 
             ' Filling in the product lines
-            SectionError = "Filling in the product lines"
+            SectionError = "ORDCON - Filling in the product lines"
             Dim Details As String = ""
             Dim SubTotal As Decimal = 0
             Dim NUMDEC As Integer = 0
@@ -188,25 +188,25 @@ Public Class Form1
 
             If OrderDetails.Rows.Count > 0 Then
                 For i = 0 To OrderDetails.Rows.Count - 1
-                    SectionError = "Filling in the product lines 1"
+                    SectionError = "ORDCON - Filling in the product lines 1"
                     NUMDEC = OrderDetails.Rows(i).Item("NUMDEC")
                     Details += vbTab + "<tr><td style=""font-size: 13px; font-family: sans-serif; border-bottom:  1px solid #ccc;"">" + vbCrLf
                     Details += vbTab + vbTab + "<strong>" + OrderDetails.Rows(i).Item("TITLE") + "</strong><br><br>" + vbCrLf
                     Details += vbTab + vbTab + OrderDetails.Rows(i).Item("ITMREF_0") + "<br/>" + vbCrLf
-                    SectionError = "Filling in the product lines 2"
+                    SectionError = "ORDCON - Filling in the product lines 2"
                     Details += vbTab + vbTab + "UOM: " + OrderDetails.Rows(i).Item("UOM").ToString() + "<br>" + vbCrLf
                     Details += vbTab + "</td>"
                     Details += vbTab + vbTab + "<td align=""center"" style=""font-size: 13px; font-family: sans-serif; border-bottom: 1px solid #ccc;"">"
                     Details += Math.Round(OrderDetails.Rows(i).Item("QTY_0"), NUMDEC).ToString() + "</td>" + vbCrLf
-                    'SectionError = "Filling in the product lines 1"
+                    'SectionError = "ORDCON - Filling in the product lines 1"
                     'Details += vbTab + vbTab + "<td align='center'>" + Math.Round(OrderDetails.Rows(i).Item("SHIQTY"), NUMDEC).ToString() + "</center></td>" + vbCrLf
                     'Details += vbTab + vbTab + "<td align=""center"" style=""font-size: 13px; font-family: sans-serif; border-bottom:  1px solid #ccc;"">"
 
-                    SectionError = "Filling in the product lines 3"
+                    SectionError = "ORDCON - Filling in the product lines 3"
                     If Math.Round(OrderDetails.Rows(i).Item("BOQTY")) > 0 Then
                         LeadTimeDays = 0
 
-                        SectionError = "SQL Statement to pull the backorder information "
+                        SectionError = "ORDCON - SQL Statement to pull the backorder information "
                         SQLStatement = <Sql><![CDATA[ SELECT PILOT.ITMFACILIT.ITMREF_0,PILOT.ITMFACILIT.OFS_0 FROM PILOT.ITMFACILIT 
                                                       WHERE PILOT.ITMFACILIT.ITMREF_0 ='***ITMREF***' and PILOT.ITMFACILIT.STOFCY_0='BGR'  ]]></Sql>.Value
 
@@ -217,7 +217,7 @@ Public Class Form1
                         LeadTimeDays = LeadTimes.Rows(0).Item("OFS_0")
 
                         If LeadTimeDays = 0 Then
-                            SectionError = "SQL Statement to pull the backorder information for supplier lead "
+                            SectionError = "ORDCON - SQL Statement to pull the backorder information for supplier lead "
                             SQLStatement = <Sql><![CDATA[   SELECT        PILOT.BPSUPPLIER.ZAVGLEAD_0
                                                             FROM            PILOT.ITMBPS INNER JOIN
                                                             PILOT.BPSUPPLIER ON PILOT.ITMBPS.BPSNUM_0 = PILOT.BPSUPPLIER.BPSNUM_0
@@ -227,7 +227,7 @@ Public Class Form1
                             LeadTimeDays = LeadTimeSupplier.Rows(0).Item("ZAVGLEAD_0")
                         End If
 
-                        SectionError = "Calculating backorder date " + SQLStatement
+                        SectionError = "ORDCON - Calculating backorder date " + SQLStatement
                         BODate = DateAdd(DateInterval.Day, (1 + LeadTimeDays), Date.Today)
                         If BODate.DayOfWeek = DayOfWeek.Saturday Then
                             BODate = BODate.AddDays(2)
@@ -247,13 +247,13 @@ Public Class Form1
                         Details += "<p style=""background:#cfeddc;color:#298250;padding: 5px 0;"">In Stock<br />Will Ship<br/>"
                         Details += DateValue(OrderDetails.Rows(i).Item("DEMDLVDAT_0")).ToString("MM/dd/yyyy") + "</p></td>" + vbCrLf
                     End If
-                    SectionError = "Filling in the product lines 4"
+                    SectionError = "ORDCON - Filling in the product lines 4"
                     Details += vbTab + vbTab + "<td align='center' style=""font-family: arial,sans-serif; font-size: 13px; border-bottom: 1px solid #ccc;"">"
                     Details += CType(Math.Round(OrderDetails.Rows(i).Item("NETPRI_0"), 4), Double).ToString("C2") + "</td>" + vbCrLf
-                    SectionError = "Filling in the product lines 5"
+                    SectionError = "ORDCON - Filling in the product lines 5"
                     Details += vbTab + vbTab + "<td align='center' style=""font-family: arial,sans-serif; font-size: 13px; border-bottom: 1px solid #ccc;"">"
                     Details += CType(Math.Round(OrderDetails.Rows(i).Item("NETPRI_0") * OrderDetails.Rows(i).Item("QTY_0"), 2), Double).ToString("C2") + "</td>" + vbCrLf
-                    SectionError = "Filling in the product lines 6"
+                    SectionError = "ORDCON - Filling in the product lines 6"
                     Details += vbTab + "</tr>" + vbCrLf
                     SubTotal += OrderDetails.Rows(i).Item("NETPRI_0") * OrderDetails.Rows(i).Item("QTY_0")
                     If OrderDetails.Rows(i).Item("LineText") <> "" Then
@@ -274,11 +274,11 @@ Public Class Form1
             End If
 
             ' SubTotal
-            SectionError = "SubTotal"
+            SectionError = "ORDCON - SubTotal"
             Body = Replace(Body, "***SubTotal***", CType(Math.Round(SubTotal, 2), Double).ToString("C2"))
 
             ' Delivery Fee
-            SectionError = "Delivery Fee"
+            SectionError = "ORDCON - Delivery Fee"
             If Order.Rows(0).Item("MINORD") > 0 Then
                 strbuffer = "<tr> <td align=""left"" style=""font-size:   13px; font-family: sans-serif;"">"
                 strbuffer += "Delivery Fee</td><td align=""right"" style=""font-size:   13px; font-family: sans-serif;"">"
@@ -289,7 +289,7 @@ Public Class Form1
             End If
 
             ' Handling Fee
-            SectionError = "Handling Fee"
+            SectionError = "ORDCON - Handling Fee"
             If Order.Rows(0).Item("HANDLFEE") > 0 Then
                 strbuffer = "<tr> <td align=""left"" style=""font-size:   13px; font-family: sans-serif;"">"
                 strbuffer += "Handling Fee</td><td align=""right"" style=""font-size:   13px; font-family: sans-serif;"">"
@@ -300,7 +300,7 @@ Public Class Form1
             End If
 
             ' Freight
-            SectionError = "Freight"
+            SectionError = "ORDCON - Freight"
             If Order.Rows(0).Item("INVDTAAMT_1") > 0 Then
                 strbuffer = "<tr> <td align=""left"" style=""font-size:   13px; font-family: sans-serif;"">"
                 strbuffer += "Freight</td><td align=""right"" style=""font-size:   13px; font-family: sans-serif;"">"
@@ -311,7 +311,7 @@ Public Class Form1
             End If
 
             ' Tax
-            SectionError = "Tax"
+            SectionError = "ORDCON - Tax"
             If Order.Rows(0).Item("ORDINVATI_0") - Order.Rows(0).Item("ORDINVNOT_0") > 0 Then
                 strbuffer = "<tr> <td align=""left"" style=""font-size:   13px; font-family: sans-serif;"">"
                 strbuffer += "Tax</td><td align=""right"" style=""font-size:   13px; font-family: sans-serif;"">"
@@ -322,15 +322,15 @@ Public Class Form1
             End If
 
             ' Total
-            SectionError = "Total"
+            SectionError = "ORDCON - Total"
             Body = Replace(Body, "***Total***", CType(Math.Round(Order.Rows(0).Item("ORDINVATI_0"), 2), Double).ToString("C2"))
 
             ' Add Details to the HTML
-            SectionError = "Add Details to the HTML"
+            SectionError = "ORDCON - Add Details to the HTML"
             Body = Replace(Body, "***LINES***", Details)
 
             ' Constructing the ToAddress of the email
-            SectionError = "Constructing the ToAddress of the email"
+            SectionError = "ORDCON - Constructing the ToAddress of the email"
             Dim EmailTo As String = ""
             If Len(Order.Rows(0).Item("WEB_0")) > 1 Then
                 EmailTo = EmailTo + Order.Rows(0).Item("WEB_0") + ";"
@@ -367,7 +367,7 @@ Public Class Form1
             'Me.RichTextBox1.Text = Body
 
             ' Sends the Email "BGR <do-not-reply@bgr.us>"
-            SectionError = "Sends the Email"
+            SectionError = "ORDCON - Sends the Email"
             If Len(Order.Rows(0).Item("CSREML_0")) > 1 And Len(EmailTo) > 1 Then
                 EmailTo = EmailTo.Substring(0, Len(EmailTo) - 1)
                 If CreateUserDept = 10 Then
@@ -395,18 +395,19 @@ Public Class Form1
     Private Sub Look4DeliveryConfirmations()
         Try
             ' SQL Statement to pull any unsent delivery confirmations
-            Dim SQLStatement As String = <Sql><![CDATA[SELECT DISTINCT d.SOHNUM_0
-	                                                        ,d.CREUSR_0
-	                                                        ,s.MDL_0 
-                                                        FROM PILOT.SDELIVERYD d
-                                                        INNER JOIN PILOT.SDELIVERY s ON d.SDHNUM_0 = s.SDHNUM_0
-                                                        WHERE 
-                                                            d.SHIDAT_0 >= GETDATE() - 1 
-                                                            And d.SHIDAT_0 <= GETDATE() 
-                                                            And s.BETFCY_0 = 1 
-                                                            And s.PRNNDE_0 = 2
-                                                            And d.STOFCY_0 IN('BGR','LVL','IND','WVA','DET')
-            ]]></Sql>.Value
+            Dim SQLStatement As String = <Sql><![CDATA[
+                                    SELECT DISTINCT d.SOHNUM_0
+	                                    ,d.CREUSR_0
+	                                    ,s.MDL_0 
+                                    FROM PILOT.SDELIVERYD d
+                                    INNER JOIN PILOT.SDELIVERY s ON d.SDHNUM_0 = s.SDHNUM_0
+                                    WHERE d.SHIDAT_0 >= GETDATE() - 2 
+	                                    and d.SHIDAT_0 <= GETDATE() 
+	                                    and s.BETFCY_0 = 1 
+	                                    and s.PRNNDE_0 = 2
+	                                    and d.STOFCY_0 IN('BGR','LVL','IND','WVA','DET')
+                                    ORDER BY SOHNUM_0
+                                    ]]></Sql>.Value
             Dim DeliveryConfirmations As DataTable = OpenDataSet(SQLStatement)
             Dim OrderNumber As String
             If DeliveryConfirmations.Rows.Count > 0 Then
@@ -418,7 +419,7 @@ Public Class Form1
                     ' Sends the order confirmation
                     SendDeliveryConfirmation(OrderNumber)
                     ' Sets the status to sent
-                    'ExecuteSQLQuery("UPDATE PILOT.ZORDCON SET STA_0 = 2 WHERE SOHNUM_0 = '" + OrderNumber + "' AND STA_0 = 1")
+                    ExecuteSQLQuery("UPDATE PILOT.SDELIVERYD SET ZDELCONSTA_0 = '2' WHERE SOHNUM_0 = '" + OrderNumber + "' AND ZDELCONSTA_0 = '1'")
                 Next
             End If
         Catch ex As Exception
@@ -450,81 +451,95 @@ Public Class Form1
         Dim intTabLevel As Integer = 14
 
         ' Pull Shipment Header Info
-        SectionError = "SQL Statement to pull the header information of the delivery confirmation"
-        SQLStatement = <Sql><![CDATA[SELECT s.SOHNUM_0 As SalesOrderNum
-                            ,s.SDHNUM_0 As ShipmentNum
-                            ,o.CUSORDREF_0 As CustPONum
-                            ,s.BPCORD_0 As BPNum
-                            ,s.BPDNAM_0 As ShipToName1
-                            ,s.BPDNAM_1 As ShipToName2
-                            ,s.BPDADDLIG_0 As ShipToAdd1
-                            ,s.BPDADDLIG_1 As ShipToAdd2
-                            ,s.BPDADDLIG_2 As ShipToAdd3
-                            ,s.BPDCTY_0 As ShipToCity
-                            ,s.BPDSAT_0 As ShipToState
-                            ,s.BPDPOSCOD_0 As ShipToZip
-                            ,s.BPINAM_0 As BillToName1
-                            ,s.BPINAM_1 As BillToName2
-                            ,s.BPIADDLIG_0 As BillToAdd1
-                            ,s.BPIADDLIG_1 As BillToAdd2
-                            ,s.BPIADDLIG_2 As BillToAdd3
-                            ,s.BPICTY_0 As BillToCity
-                            ,s.BPISAT_0 As BillToState
-                            ,s.BPIPOSCOD_0 As BillToZip
-                            ,c.BPTNAM_0 As ShipMethod
-                            ,s.MDL_0
-                            ,o.STOFCY_0 As Facility
-                            ,n.WEB_0 As Email
-                            ,o.BPTNUM_0 
-                        FROM PILOT.SORDER o 
-                        LEFT JOIN PILOT.SDELIVERY s ON o.SOHNUM_0 = s.SOHNUM_0 
-                        LEFT JOIN PILOT.BPCARRIER c ON s.MDL_0 = c.BPTNUM_0 
-                        LEFT JOIN PILOT.CONTACT n ON s.BPCORD_0 = n.BPANUM_0 
-                        WHERE o.SOHNUM_0 = '***OrderNumber***'
-	                        And o.STOFCY_0 IN('BGR','IND','LVL','WVA', 'DET')]]></Sql>.Value
+        SectionError = "DELCON - SQL Statement to pull the header information of the delivery confirmation"
+        SQLStatement = <Sql><![CDATA[
+                SELECT s.SOHNUM_0 As SalesOrderNum
+	                ,s.SDHNUM_0 As ShipmentNum
+	                ,o.CUSORDREF_0 As CustPONum
+	                ,s.BPCORD_0 As BPNum
+	                ,s.BPDNAM_0 As ShipToName1
+	                ,s.BPDNAM_1 As ShipToName2
+	                ,s.BPDADDLIG_0 As ShipToAdd1
+	                ,s.BPDADDLIG_1 As ShipToAdd2
+	                ,s.BPDADDLIG_2 As ShipToAdd3
+	                ,s.BPDCTY_0 As ShipToCity
+	                ,s.BPDSAT_0 As ShipToState
+	                ,s.BPDPOSCOD_0 As ShipToZip
+	                ,s.BPINAM_0 As BillToName1
+	                ,s.BPINAM_1 As BillToName2
+	                ,s.BPIADDLIG_0 As BillToAdd1
+	                ,s.BPIADDLIG_1 As BillToAdd2
+	                ,s.BPIADDLIG_2 As BillToAdd3
+	                ,s.BPICTY_0 As BillToCity
+	                ,s.BPISAT_0 As BillToState
+	                ,s.BPIPOSCOD_0 As BillToZip
+	                ,c.BPTNAM_0 As ShipMethod
+	                ,s.MDL_0
+	                ,o.STOFCY_0 As Facility
+	                ,n.WEB_0 As Email
+	                ,o.BPTNUM_0 
+	                ,n.CNTOAEML1_0
+	                ,n.CNTOAEML2_0
+	                ,n.CNTOAEML3_0
+	                ,n.CNTOAEML4_0
+	                ,n.WEB_0
+                FROM PILOT.SORDER o 
+                LEFT JOIN PILOT.SDELIVERY s ON o.SOHNUM_0 = s.SOHNUM_0 
+                LEFT JOIN PILOT.BPCARRIER c ON s.MDL_0 = c.BPTNUM_0 
+                LEFT JOIN PILOT.CONTACT n ON o.BPCORD_0 = n.BPANUM_0 and o.ZCONTACT_0 = n.CCNCRM_0
+                LEFT JOIN PILOT.BPCARRIER b ON o.BPTNUM_0 = b.BPTNUM_0
+                WHERE o.SOHNUM_0 = '***OrderNumber***'
+	                And o.STOFCY_0 IN('BGR','IND','LVL','WVA', 'DET')
+                ]]></Sql>.Value
         SQLStatement = Replace(SQLStatement, "***OrderNumber***", OrderNumber)
         Delivery = OpenDataSet(SQLStatement)
 
         ' Pull email delivery info
-        SQLStatement = <Sql><![CDATA[SELECT REPEML_0
-                            ,DEPARTMENT_0 
-                        FROM PILOT.ZBGRREPS 
-                        WHERE USR_0 = '***CreateUser***']]></Sql>.Value
+        SQLStatement = <Sql><![CDATA[
+                SELECT REPEML_0
+                    ,DEPARTMENT_0 
+                FROM PILOT.ZBGRREPS 
+                WHERE USR_0 = '***CreateUser***'
+                ]]></Sql>.Value
         SQLStatement = Replace(SQLStatement, "***CreateUser***", CreateUser)
         CreateUserDT = OpenDataSet(SQLStatement)
         CreateUserEmail = CreateUserDT.Rows(0).Item("REPEML_0")
         CreateUserDept = CreateUserDT.Rows(0).Item("DEPARTMENT_0")
 
         ' Pull email footer info
-        SQLStatement = <Sql><![CDATA[SELECT a.REPNAME_0
-                            ,a.REPPHONE_0 
-                            ,a.REPEML_0 
-                            ,b.REPNAME_0 as CSRNAME_0
-                            ,b.REPPHONE_0 as CSRPHONE_0
-                            ,b.REPEML_0 as CSREML_0 
-                        FROM PILOT.SORDER s 
-                        INNER JOIN PILOT.ZBGRREPS a ON s.REP_0 = a.USR_0 
-                        INNER JOIN PILOT.ZBGRREPS b ON s.ZCSR_0 = b.USR_0 
-                        WHERE s.SOHNUM_0 = '***OrderNumber***']]></Sql>.Value
+        SQLStatement = <Sql><![CDATA[
+                SELECT a.REPNAME_0
+                    ,a.REPPHONE_0 
+                    ,a.REPEML_0 
+                    ,b.REPNAME_0 as CSRNAME_0
+                    ,b.REPPHONE_0 as CSRPHONE_0
+                    ,b.REPEML_0 as CSREML_0 
+                FROM PILOT.SORDER s 
+                INNER JOIN PILOT.ZBGRREPS a ON s.REP_0 = a.USR_0 
+                INNER JOIN PILOT.ZBGRREPS b ON s.ZCSR_0 = b.USR_0 
+                WHERE s.SOHNUM_0 = '***OrderNumber***'
+                ]]></Sql>.Value
         SQLStatement = Replace(SQLStatement, "***OrderNumber***", OrderNumber)
         Footer = OpenDataSet(SQLStatement)
 
         If Delivery.Rows.Count > 0 Then
 
             ' Opens the html template file and sets the entire file as a string "Body"
-            SectionError = "Opens the html template file and sets the entire file as a string Body"
+            SectionError = "DELCON - Opens the html template file and sets the entire file as a string Body"
             FileReader = New StreamReader("\\bgr.local\Users\DocumentRedirection\Cdreyer\Documents\Projects\WebConfirmation\DeliveryConfirmation.html")
             Body = FileReader.ReadToEnd
             FileReader.Close()
 
             ' Set program flow variables
             strShipMethod = GetShipMethod(Delivery.Rows(0).Item("MDL_0"))
-            SQLStatement = <Sql><![CDATA[SELECT s.SOHNUM_0 As SalesOrderNum
-	                                        ,COUNT(s.SDHNUM_0) As ShipmentCount
-                                        FROM PILOT.SORDER o 
-                                        LEFT JOIN PILOT.SDELIVERY s ON o.SOHNUM_0 = s.SOHNUM_0 
-                                        WHERE o.SOHNUM_0 = '***OrderNumber***'
-                                        GROUP BY s.SOHNUM_0]]></Sql>.Value
+            SQLStatement = <Sql><![CDATA[
+                    SELECT s.SOHNUM_0 As SalesOrderNum
+	                    ,COUNT(s.SDHNUM_0) As ShipmentCount
+                    FROM PILOT.SORDER o 
+                    LEFT JOIN PILOT.SDELIVERY s ON o.SOHNUM_0 = s.SOHNUM_0 
+                    WHERE o.SOHNUM_0 = '***OrderNumber***'
+                    GROUP BY s.SOHNUM_0
+                    ]]></Sql>.Value
             SQLStatement = Replace(SQLStatement, "***OrderNumber***", OrderNumber)
             PartialShip = OpenDataSet(SQLStatement)
             If PartialShip.Rows(0).Item("ShipmentCount") > 1 Then
@@ -534,7 +549,7 @@ Public Class Form1
             End If
 
             ' Inject Header information into the template with data from the SQL statement
-            SectionError = "Replaces the Header information in the template with data from the SQL statement"
+            SectionError = "DELCON - Replaces the Header information in the template with data from the SQL statement"
             Body = Replace(Body, "***OrderNumber***", OrderNumber)
             Body = Replace(Body, "***PONumber***", Delivery.Rows(0).Item("CustPONum"))
             If strShipMethod = "CUST" Then
@@ -580,7 +595,7 @@ Public Class Form1
             End If
 
             ' BillTo
-            SectionError = "BillTo"
+            SectionError = "DELCON - BillTo"
             Dim BillTo As String = ""
             If Len(Delivery.Rows(0).Item("BillToName1")) > 2 Then BillTo += Delivery.Rows(0).Item("BillToName1")
             If Len(Delivery.Rows(0).Item("BPNum")) > 2 Then BillTo += " (Cust #: " + Delivery.Rows(0).Item("BPNum") + ")" + "<BR>" + vbCrLf
@@ -593,7 +608,7 @@ Public Class Form1
 
             ' ShipTo
             If strShipMethod <> "CUST" Then
-                SectionError = "ShipTo"
+                SectionError = "DELCON - ShipTo"
                 Dim ShipTo As String = ""
                 If Len(Delivery.Rows(0).Item("ShipToName1")) > 2 Then ShipTo += Delivery.Rows(0).Item("ShipToName1") + "<BR>" + vbCrLf
                 If Len(Delivery.Rows(0).Item("ShipToName2")) > 2 Then ShipTo += StrDup(intTabLevel, vbTab) + Delivery.Rows(0).Item("ShipToName2") + "<BR>" + vbCrLf
@@ -608,7 +623,7 @@ Public Class Form1
             End If
 
             ' Load items shipping today
-            SectionError = "SQL Statement to pull the product line information - shipping today"
+            SectionError = "DELCON Today - SQL Statement to pull the product line information - shipping today"
             SQLStatement = <Sql><![CDATA[
                 SELECT dd.SDHNUM_0 As ShipmentNumber_Unshipped
 	                ,dd.ITMREF_0 As ItemRef
@@ -632,7 +647,7 @@ Public Class Form1
             SQLStatement = Replace(SQLStatement, "***OrderNumber***", OrderNumber)
             Dim DeliveryDetails As DataTable = OpenDataSet(SQLStatement)
 
-            SectionError = "Filling in the product lines"
+            SectionError = "DELCON Today - Filling in the product lines"
             Dim Details As String = ""
             Dim NUMDEC As Integer = 0
             Dim LeadTimeDays As Integer = 0
@@ -648,7 +663,7 @@ Public Class Form1
                 intTabLevel = 11
                 Details += StrDup(intTabLevel, vbTab) + "</tr>" + vbCrLf
                 For i = 0 To DeliveryDetails.Rows.Count - 1
-                    SectionError = "Filling in the product lines 1"
+                    SectionError = "DELCON Today - Filling in the product lines 1"
                     NUMDEC = DeliveryDetails.Rows(i).Item("NUMDEC")
                     intTabLevel = 11
                     Details += StrDup(intTabLevel, vbTab) + "<tr>" + vbCrLf
@@ -656,7 +671,7 @@ Public Class Form1
                     Details += StrDup(intTabLevel, vbTab) + "<td style="" font-size:13px; font-family: sans-serif; border-bottom:  1px solid #ccc;"">" + vbCrLf
                     intTabLevel = 13
                     Details += StrDup(intTabLevel, vbTab) + "<strong>" + DeliveryDetails.Rows(i).Item("TITLE") + "</strong><br><br>" + vbCrLf
-                    SectionError = "Filling in the product lines 2"
+                    SectionError = "DELCON Today - Filling in the product lines 2"
                     Details += StrDup(intTabLevel, vbTab) + "Item #: " + DeliveryDetails.Rows(i).Item("ItemRef") + "  "
                     Details += "UOM: " + DeliveryDetails.Rows(i).Item("UOM").ToString() + "<br>"
                     Details += "Shipment #: " + DeliveryDetails.Rows(i).Item("ShipmentNumber_Unshipped").ToString() + vbCrLf
@@ -693,7 +708,7 @@ Public Class Form1
             End If
 
             ' Load items awaiting shipment
-            SectionError = "SQL Statement to pull the product line information - already shipped"
+            SectionError = "DELCON Future - SQL Statement to pull the product line information - already shipped"
             SQLStatement = <Sql><![CDATA[
                     SELECT i.ITMREF_0 As ItemRef
 	                    ,i.ZWEBTITLE_0 As TITLE
@@ -752,7 +767,7 @@ Public Class Form1
                 Details += StrDup(intTabLevel, vbTab) + "</tr>" + vbCrLf
                 For i = 0 To PendingDelivery.Rows.Count - 1
                     'Create item lines
-                    SectionError = "Filling in the product lines 1"
+                    SectionError = "DELCON Future - Filling in the product lines 1"
                     NUMDEC = PendingDelivery.Rows(i).Item("NUMDEC")
                     intTabLevel = 11
                     Details += StrDup(intTabLevel, vbTab) + "<tr>" + vbCrLf
@@ -761,7 +776,7 @@ Public Class Form1
                     intTabLevel = 13
                     Details += StrDup(intTabLevel, vbTab) + "<strong>" + PendingDelivery.Rows(i).Item("TITLE") + "</strong><br><br>" + vbCrLf
                     Details += StrDup(intTabLevel, vbTab) + "Item #: " + PendingDelivery.Rows(i).Item("ItemRef") + "  "
-                    SectionError = "Filling in the product lines 2"
+                    SectionError = "DELCON Future - Filling in the product lines 2"
                     Details += StrDup(intTabLevel, vbTab) + "UOM: " + PendingDelivery.Rows(i).Item("UOM").ToString() + "<br>" + vbCrLf
                     intTabLevel = 12
                     Details += StrDup(intTabLevel, vbTab) + "</td>" + vbCrLf
@@ -787,7 +802,7 @@ Public Class Form1
             End If
 
             'Load items already shipped
-            SectionError = "SQL Statement to pull the product line information - already shipped"
+            SectionError = "DELCON Past - SQL Statement to pull the product line information - already shipped"
             SQLStatement = <Sql><![CDATA[
             SELECT dd.SDHNUM_0 As ShipmentNumber_Shipped
 	            ,dd.ITMREF_0 As ItemRef
@@ -830,7 +845,7 @@ Public Class Form1
                 Details += StrDup(intTabLevel, vbTab) + "</tr>" + vbCrLf
                 For i = 0 To PastDeliveries.Rows.Count - 1
                     'Create item lines
-                    SectionError = "Filling in the product lines 1"
+                    SectionError = "DELCON Past - Filling in the product lines 1"
                     NUMDEC = PastDeliveries.Rows(i).Item("NUMDEC")
                     intTabLevel = 11
                     Details += StrDup(intTabLevel, vbTab) + "<tr>" + vbCrLf
@@ -838,7 +853,7 @@ Public Class Form1
                     Details += StrDup(intTabLevel, vbTab) + "<td style=""font-size:13px; font-family: sans-serif; border-bottom:  1px solid #ccc;"">" + vbCrLf
                     intTabLevel = 13
                     Details += StrDup(intTabLevel, vbTab) + "<strong>" + PastDeliveries.Rows(i).Item("TITLE") + "</strong><br><br>" + vbCrLf
-                    SectionError = "Filling in the product lines 2"
+                    SectionError = "DELCON Past - Filling in the product lines 2"
                     Details += StrDup(intTabLevel, vbTab) + "Item #: " + PastDeliveries.Rows(i).Item("ItemRef") + "  "
                     Details += "UOM: " + PastDeliveries.Rows(i).Item("UOM").ToString() + "<br>" + vbCrLf
                     Details += StrDup(intTabLevel, vbTab) + "Shipment #: " + PastDeliveries.Rows(i).Item("ShipmentNumber_Shipped") + vbCrLf
@@ -871,48 +886,48 @@ Public Class Form1
             End If
 
             ' Add Details to the HTML
-            SectionError = "Add Details to the HTML"
+            SectionError = "DELCON Past - Add Details to the HTML"
             Body = Replace(Body, "***LINES***", Details)
 
             ' Constructing the ToAddress of the email
             'SectionError = "Constructing the ToAddress of the email"
             'Dim EmailTo As String = ""
-            'If Len(Order.Rows(0).Item("WEB_0")) > 1 Then
+            'If Len(Delivery.Rows(0).Item("WEB_0")) > 1 Then
             '    EmailTo = EmailTo + Order.Rows(0).Item("WEB_0") + ";"
             'End If
-            'If Len(Order.Rows(0).Item("CNTOAEML1_0")) > 1 And Not EmailTo.Contains(Order.Rows(0).Item("CNTOAEML1_0")) Then
-            '    EmailTo = EmailTo + Order.Rows(0).Item("CNTOAEML1_0") + ";"
+            'If Len(Delivery.Rows(0).Item("CNTOAEML1_0")) > 1 And Not EmailTo.Contains(Delivery.Rows(0).Item("CNTOAEML1_0")) Then
+            '    EmailTo = EmailTo + Delivery.Rows(0).Item("CNTOAEML1_0") + ";"
             'End If
-            'If Len(Order.Rows(0).Item("CNTOAEML2_0")) > 1 And Not EmailTo.Contains(Order.Rows(0).Item("CNTOAEML2_0")) Then
-            '    EmailTo = EmailTo + Order.Rows(0).Item("CNTOAEML2_0") + ";"
+            'If Len(Delivery.Rows(0).Item("CNTOAEML2_0")) > 1 And Not EmailTo.Contains(Delivery.Rows(0).Item("CNTOAEML2_0")) Then
+            '    EmailTo = EmailTo + Delivery.Rows(0).Item("CNTOAEML2_0") + ";"
             'End If
-            'If Len(Order.Rows(0).Item("CNTOAEML3_0")) > 1 And Not EmailTo.Contains(Order.Rows(0).Item("CNTOAEML3_0")) Then
-            '    EmailTo = EmailTo + Order.Rows(0).Item("CNTOAEML3_0") + ";"
+            'If Len(Delivery.Rows(0).Item("CNTOAEML3_0")) > 1 And Not EmailTo.Contains(Delivery.Rows(0).Item("CNTOAEML3_0")) Then
+            '    EmailTo = EmailTo + Delivery.Rows(0).Item("CNTOAEML3_0") + ";"
             'End If
-            'If Len(Order.Rows(0).Item("CNTOAEML4_0")) > 1 And Not EmailTo.Contains(Order.Rows(0).Item("CNTOAEML4_0")) Then
-            '    EmailTo = EmailTo + Order.Rows(0).Item("CNTOAEML4_0") + ";"
+            'If Len(Delivery.Rows(0).Item("CNTOAEML4_0")) > 1 And Not EmailTo.Contains(Delivery.Rows(0).Item("CNTOAEML4_0")) Then
+            '    EmailTo = EmailTo + Delivery.Rows(0).Item("CNTOAEML4_0") + ";"
             'End If
 
             'Dim BCC As String = ""
             'If Len(CreateUserEmail) > 2 Then
             '    BCC = CreateUserEmail
             'End If
-            'If Len(CreateUserEmail) > 2 And Len(Order.Rows(0).Item("CSREML_0")) > 2 Then
+            'If Len(CreateUserEmail) > 2 And Len(Footer.Rows(0).Item("CSREML_0")) > 2 Then
             '    BCC = BCC + ";"
             'End If
-            'If Len(Order.Rows(0).Item("CSREML_0")) > 2 Then
+            'If Len(Footer.Rows(0).Item("CSREML_0")) > 2 Then
 
-            '    BCC = BCC + Order.Rows(0).Item("CSREML_0")
+            '    BCC = BCC + Footer.Rows(0).Item("CSREML_0")
             'End If
-            'If Len(Order.Rows(0).Item("REPEML_0")) > 2 Then
+            'If Len(Footer.Rows(0).Item("REPEML_0")) > 2 Then
             'BCC = BCC + ";"
-            'BCC = BCC + Order.Rows(0).Item("REPEML_0")
+            'BCC = BCC + Footer.Rows(0).Item("REPEML_0")
             'End If
 
             'Me.RichTextBox1.Text = Body
 
             ' Sends the Email "BGR <do-not-reply@bgr.us>"
-            SectionError = "Sends the Email"
+            SectionError = "DELCON - Sends the Email"
             'If Len(CreateUserDT.Rows(0).Item("CSREML_0")) > 1 Then And Len(EmailTo) > 1 Then
             'EmailTo = EmailTo.Substring(0, Len(EmailTo) - 1)
             'If CreateUserDept = 10 Then
@@ -1008,25 +1023,26 @@ Public Class Form1
     Private Function GetTrackingHyperlink(ByVal SOHNUM As String, ByVal SDHNUM As String) As String
 
         Dim strBuffer As String = ""
+        SectionError = "DELCON GetHyperlink - RunQuery"
         Dim SQLStatement As String = <Sql><![CDATA[SELECT * FROM PILOT.ZTRKNUMS
-                                                    WHERE ShipNum LIKE '***SDH***'
+                                                   WHERE ShipNum = '***SDH***'
         ]]></Sql>.Value
         SQLStatement = Replace(SQLStatement, "***SDH***", SDHNUM)
-        'SQLStatement = Replace(SQLStatement, "***OrderNumber***", SOHNUM)
         Dim Tracking As DataTable = OpenDataSet(SQLStatement)
 
         If Tracking.Rows.Count > 0 Then
-            Select Case Trim(Tracking.Rows(0).Item("TrackType"))
+            SectionError = "DELCON GetHyperlink - Select Case"
+            Select Case Trim(Tracking.Rows(0).Item("SRVTYP"))
                 Case "F3D", "FE2", "FEP", "FGH", "FGR", "FIE", "FIP", "FSO"
                     strBuffer = "<a style=""color: #0000EE; text-decoration: none;"" href="
-                    strBuffer += "https://www.fedex.com/apps/fedextrack/?tracknumbers=" + Tracking.Rows(0).Item("TrackingNum") + ">"
-                    strBuffer += Tracking.Rows(0).Item("TrackingNum") + "</a>" + "</td>" + vbCrLf
+                    strBuffer += "https://www.fedex.com/apps/fedextrack/?tracknumbers=" + Tracking.Rows(0).Item("TRKNUM") + ">"
+                    strBuffer += Tracking.Rows(0).Item("TRKNUM") + "</a>" + "</td>" + vbCrLf
                 Case "U2AM", "U2DA", "U3DA", "UGRN", "UNAM", "UNDA", "UNDS", "UPS", "UST", "UWXP"
                     strBuffer = "<a style=""color: #0000EE; text-decoration: none;"" href="
-                    strBuffer += "https://www.ups.com/track?loc=en_US&tracknum=" + Tracking.Rows(0).Item("TrackingNum") + "&requester=WT/" + ">"
-                    strBuffer += Tracking.Rows(0).Item("TrackingNum") + "</a>" + "</td>" + vbCrLf
+                    strBuffer += "https://www.ups.com/track?loc=en_US&tracknum=" + Tracking.Rows(0).Item("TRKNUM") + "&requester=WT/" + ">"
+                    strBuffer += Tracking.Rows(0).Item("TRKNUM") + "</a>" + "</td>" + vbCrLf
                 Case "Other"
-                    strBuffer = Tracking.Rows(0).Item("TrackingNum") + "</td>" + vbCrLf
+                    strBuffer = Tracking.Rows(0).Item("TRKNUM") + "</td>" + vbCrLf
             End Select
         Else
             strBuffer = "No Tracking"
